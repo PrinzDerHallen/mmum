@@ -1,7 +1,8 @@
 import useAllHighScores from "../../hooks/useAllHighScores";
 import styled from "styled-components";
 import bgImg from "../../assets/background.png";
-
+import useEditScore from "../../hooks/useEditScore";
+import { useState } from "react";
 const PageWrapper = styled.div`
   width: 100vw;
   height: 100vh;
@@ -66,16 +67,60 @@ const DeleteButton = styled.button`
     cursor: pointer;
   }
 `;
+
+const EditButton = styled.button`
+  color: #fff;
+  background-color: green;
+  border-radius: 4px;
+  padding: 0.5rem 0.5rem;
+  outline: none;
+  border-color: red;
+  border-style: solid;
+
+  &:hover {
+    cursor: pointer;
+  }
+`;
+
 export default function HighScores() {
+  const [userScore, setUserScore] = useState(0);
+  const [userName, setUserName] = useState('');
+  const [userId, setUserId] = useState('');
   // object destructuring
   const { allScores, deleteScore, isDeleting } = useAllHighScores();
+const { isUpdating, setIsUpdating, editScore} = useEditScore();
+
+const handleSubmit = event => {
+  console.log("handleSubmit Ran")
+  window.location.reload();
+  console.log(userScore)
+  console.log(userName)
+  console.log(userId)
+  setUserScore(0)
+  setUserName('')
+  setUserId('')
+  setIsUpdating(false)
+  submitEdit()
+}
+
+async function submitEdit (score,username,id) {
+  try {
+    id = userId
+    username = userName
+    score = userScore
+    editScore(id,score,username)
+  }
+  catch (error) {
+    console.log(error)
+  }
+}
 
   return (
     <PageWrapper>
       <Header>Space Shooter Scores</Header>
       {allScores.map((score, i) => (
         <ScoreWrapper key={i}>
-          <p>{score.userName || score.username}</p>
+          <p>{score.username}</p>
           <p>{score.score}</p>
           <DeleteButton
             onClick={() => {
@@ -85,6 +130,37 @@ export default function HighScores() {
           >
             {isDeleting === true ? "Is Deleting" : "Delete"}
           </DeleteButton>
+
+          <EditButton onClick={()=>{
+            console.log("hit edit");
+            setIsUpdating(true);
+            console.log(isUpdating);
+            setUserId(score._id);
+            setUserName(score.username);
+            setUserScore(score.score);
+          }}>
+            edit
+         </EditButton>
+        
+         {isUpdating === true ?
+            <form onSubmit={handleSubmit}>
+              <input
+                id="score"
+                name="score"
+                type="number"
+                onChange={event => setUserScore(event.target.value)}
+                value={userScore}
+              />
+              <input
+                id="username"
+                name="username"
+                type="text"
+                onChange={event => setUserName(event.target.value)}
+                value={userName}
+              />
+              <button type='submit'> Done </button>
+            </form> : null}
+
         </ScoreWrapper>
       ))}
     </PageWrapper>
