@@ -20,7 +20,7 @@ export default function useAllHighScores() {
       try {
         const data = await getHighScores();
         console.log("success");
-        console.log(data);
+        console.log(data.data.payload);
         setAllScores(data.data.payload);
       } catch (e) {
         console.log(e);
